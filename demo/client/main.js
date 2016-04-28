@@ -13,15 +13,16 @@ if (Meteor.isClient) {
     Mapbox.load({ gl: true });
 
     this.autorun(function() {
-      if (Mapbox.loaded()) {
+      //make sure mapbox is ready and we have a current location
+      if (Mapbox.loaded() && Geolocation.currentLocation() && Session.get('backgroundRunning')) {
         //test token given on mapbox examples
         mapboxgl.accessToken = 'pk.eyJ1IjoiaGFiaXRhdG1pa2UiLCJhIjoiY2lsdHVpMWQxMDBjdnVza3NyNnV6Y3N3NCJ9.dWupCOy48vAo8BocejIdtg';
 
         //set initial source data...still haven't found a meteor workaround
         //need an inital source for map.addSource onLoad
-        source = new mapboxgl.GeoJSONSource({
-          data: 'https://wanderdrone.appspot.com/'
-        });
+        // source = new mapboxgl.GeoJSONSource({
+        //   data: 'https://wanderdrone.appspot.com/'
+        // });
 
         map = new mapboxgl.Map({
             container: 'map',  //div id of map container
@@ -35,7 +36,7 @@ if (Meteor.isClient) {
           render.schoolBounds(map);
 
           //render live runner marker, need to pass inital source up AFAIK (this is just proof of concept)
-          render.runnerLocation(map, source);
+          render.runnerLocation(map);
 
           //render an inside and outside student
           //is static fixture data now ->
@@ -45,19 +46,4 @@ if (Meteor.isClient) {
       }
     });
   });
-
-  //using window.setInterval per docs
-  //https://www.mapbox.com/mapbox-gl-js/example/live-geojson/
-
-  //With actual data, this would be a Tracker observing changes
-  //on the runner's position. Position would be update in method call
-  //like seen in geoloc.init.js
-  window.setInterval(function() {
-    var lngLat = {
-      lng: Session.get('longitude'),
-      lat: Session.get('latitude')
-    };
-
-    source.setData(transformToGJSON(lngLat));
-  }, 2000);
 }

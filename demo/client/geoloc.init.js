@@ -28,14 +28,16 @@ if (Meteor.isCordova) {
       //  "heading":0
       // }
 
+      Session.set('backgroundRunning', true);
       //won't need these, just for proof of concept...
       Session.set('latitude', location.latitude);
       Session.set('longitude', location.longitude);
       //in reality, we want to update the runner position
       // Meteor.call('updateRunnerPosition', location);
 
-      
+
     }, function (err) {
+      Session.set('backgroundRunning', false);
       console.log("Error: Didnt get an update", err);
     });
 
@@ -48,10 +50,6 @@ if (Meteor.isCordova) {
     // }, function (err) {
     //   console.log("Error:", err);
     // });
-
-    //Start the Background Tracker.
-    //When you enter the background tracking will start.
-    BackgroundLocation.start();
 
   });
 }

@@ -3,10 +3,35 @@
 //this will be grabbed from relevant habitat documents
 const turfPolygon = temple.data.geometry.coordinates;
 const mapboxPolygon = temple;
+var map = new ReactiveVar(null);
 
 render = {};
 
-render.schoolBounds = function(map) {
+render.animateMarker = function(timestamp, m) {
+    map.set(m);
+   // Update the data to a new position based on the animation timestamp. The
+   // divisor in the expression `timestamp / 1000` controls the animation speed.
+   console.log('running animate market' + timestamp + map);
+   map.getSource('drone').setData(render.transformToGJSON(timestamp / 1000));
+
+   // Request the next frame of the animation.
+   requestAnimationFrame(animateMarker);
+ };
+
+render.transformToGJSON = function(coords) {
+  return {
+      "type": "Point",
+      "coordinates": [
+        Session.get('longitude'),
+        Session.get('latitude')
+      ]
+    };
+};
+
+
+
+render.schoolBounds = function(m) {
+  map.set(m);
   //WATCH OUT: addSource string must match addLayer source
   map.addSource('temple', mapboxPolygon);
 
@@ -22,7 +47,9 @@ render.schoolBounds = function(map) {
   });
 };
 
-render.students = function(map){
+render.students = function(m){
+  map.set(m);
+
   polygon = turf.polygon(turfPolygon);
 
   //make turf.point using raw lngLat array.
@@ -87,8 +114,17 @@ render.students = function(map){
   });
 };
 
-render.runnerLocation = function(map, source){
-  map.addSource('drone', source);
+//With actual data, this would be a Tracker observing changes
+//on the runner's position. Position would be updated in method call
+//like seen in geoloc.init.js
+render.runnerLocation = function(map){
+  map.set(map);
+
+  map.addSource('drone', {
+    "type": "geojson",
+    "data": transformToGJSON()
+  });
+
   map.addLayer({
      "id": "drone",
      "type": "symbol",
@@ -97,18 +133,18 @@ render.runnerLocation = function(map, source){
          "icon-image": "bicycle-15",
      }
   });
+
+  // Start the animation.
+  animateMarker(0, map);
+  Session.set('runnerAnimationSet', true);
+
+  // source.setData(transformToGJSON(lngLat));
 };
 
-transformToGJSON = function(coords) {
-  return {
-    "geometry": {
-      "type": "Point",
-      "coordinates": [
-        coords.lng,
-        coords.lat
-      ]
-    },
-    "type": "Feature",
-    "properties": {}
-  };
-};
+Tracker.autorun(function(){
+  if(map.get()){
+    console.log('in tracker, map.get = ' + map.get());
+    render.animateMarker(0, map.get());
+  }
+  }
+);
