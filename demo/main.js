@@ -53,10 +53,15 @@ if (Meteor.isClient) {
   //on the runner's position. Position would be update in method call
   //like seen in geoloc.init.js
   window.setInterval(function() {
-    var lngLat = {
-      lng: Session.get('longitude'),
-      lat: Session.get('latitude')
-    };
+    var lngLat = {};
+    if(Meteor.isCordova && !Session.get('longitude') ||
+      !Meteor.isCordova && !Geolocation.currentLocation()){
+      console.log('nothing yet');
+    } else {
+      debugger;
+      lngLat.lng = Session.get('longitude') || Geolocation.currentLocation().coords.longitude;
+      lngLat.lat = Session.get('latitude') || Geolocation.currentLocation().coords.latitude;
+    }
 
     source.setData(transformToGJSON(lngLat));
   }, 2000);

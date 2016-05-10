@@ -29,12 +29,13 @@ if (Meteor.isCordova) {
       // }
 
       //won't need these, just for proof of concept...
+      console.log(JSON.stringify(location));
       Session.set('latitude', location.latitude);
       Session.set('longitude', location.longitude);
       //in reality, we want to update the runner position
       // Meteor.call('updateRunnerPosition', location);
 
-      
+
     }, function (err) {
       console.log("Error: Didnt get an update", err);
     });
