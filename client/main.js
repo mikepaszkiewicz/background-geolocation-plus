@@ -1,3 +1,6 @@
+Router.route('/', {
+    name: 'hello'
+});
 //Only start if this is a cordova project
 if (Meteor.isCordova) {
   //Only run commands after cordova has finished device Ready
