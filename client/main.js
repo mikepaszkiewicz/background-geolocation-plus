@@ -1,6 +1,3 @@
-Router.route('/', {
-    name: 'hello'
-});
 //Only start if this is a cordova project
 if (Meteor.isCordova) {
   //Only run commands after cordova has finished device Ready
@@ -32,11 +29,11 @@ if (Meteor.isCordova) {
     //Register a callback for activity updates
     //If you set the option useActivityDetection to true you will recieve
     //periodic activity updates, see below for more information
-    BackgroundLocation.registerForActivityUpdates(function (activities) {
-      console.log("We got an activity Update" + activites);
-    }, function (err) {
-      console.log("Error:", err);
-    });
+    // BackgroundLocation.registerForActivityUpdates(function (activities) {
+    //   console.log("We got an activity Update" + activites);
+    // }, function (err) {
+    //   console.log("Error:", err);
+    // });
 
     //Start the Background Tracker.
     //When you enter the background tracking will start.
@@ -46,11 +43,20 @@ if (Meteor.isCordova) {
 }
 
 Template.hello.helpers({
-  location(){
-    if(!Session.get('location')){
-      return 'No location data has been set';
+  fg(){
+    if (Geolocation.currentLocation() && Geolocation.currentLocation().timestamp) {
+      return 'foreground lat: ' + Geolocation.currentLocation().coords.latitude;
     } else {
-      return Session.get('location');
+      return 'no foreground';
     }
-  }
+
+  },
+  bg(){
+    return Session.get('location') ? Session.get('location').latitude : 'no background';
+  },
+  err(){ return Geolocation.error().message; }
 });
+
+Meteor.setInterval(function(){
+  Geolocation.currentLocation();
+}, 3000);
